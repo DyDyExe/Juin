@@ -1,46 +1,52 @@
-name: Xcode - Build and Analyze
-
+name: Build 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+    tags:
+      - 'v*' 
 jobs:
-    name: Build and analyse default scheme using xcodebuild command
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
-      - name: Build
-        env:
-          scheme: ${{ 'default' }}
-        run: |
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild clean build analyze -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
-     - name: Install Theos
-  # You may pin to the exact commit or the version.
-  # uses: Randomblock1/theos-action@da432cbe88433bafb9abf94dbbc979daab5fcf04
-  uses: Randomblock1/theos-action@v1.4
-  with:
-    # Where to install Theos
-    theos-dir: # optional, default is ${{ github.workspace }}/theos
-    # Where to clone Theos from (git URL)
-    theos-src: # optional, default is https://github.com/theos/theos
-    # Where to clone the iOS SDKs from (GitHub repository URL)
-    theos-sdks: # optional, default is https://github.com/theos/sdks
-    # Which branch to clone from SDK repo
-    theos-sdks-branch: # optional, default is master
-    # Whether to enable Orion, which adds support for Swift tweaks
-    orion: # optional, default is false
-    run: make package
-          
+  build:
+    name: Build App
+    runs-on: macOS-latest
+    env:
+      THEOS: theos
+ 
+steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Install Dependencies
+      run: brew install ldid xz
+    - name: Setup Theos
+      uses: actions/checkout@master
+      with:
+        repository: theos/theos
+        ref: 8771215f765e774bfefdacc6ddf0e151c2973d49
+        path: theos
+        submodules: recursive
+    - name: Download SDKs
+      run: |
+        curl -LO https://github.com/xybp888/iOS-SDKs/tree/master/iPhoneOS14.5.sdk
+        mv iPhoneOS14.5.sdk theos/sdks
+    - name: Build Package
+      id: build_package
+      run: |
+        make package FINALPACKAGE=1
+        echo "::set-output name=package::$(ls -t packages | head -n1)"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}          
+        asset_path: ./packages/${{ steps.build_package.outputs.package }}
+        asset_name: ${{ steps.build_package.outputs.package }}
+        asset_content_type: application/vnd.debian.binary-package

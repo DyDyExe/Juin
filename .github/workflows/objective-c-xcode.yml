@@ -1,4 +1,7 @@
-name: Juin
+# Original idea by @ISnackable. Thanks to him for handling the hardest parts!
+# https://github.com/ISnackable/CercubePlus/blob/main/.github/workflows/Build.yml
+
+name: uin rh er hgerheh 
 
 on:
   push:

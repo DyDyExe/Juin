@@ -1,9 +1,9 @@
-name: Juin 
+name: Juin
 
 on:
   push:
     tags:
-      - 'v*' 
+      - 'v*'
 
 jobs:
   build:
@@ -14,11 +14,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Install Dependencies
         run: brew install ldid xz
       - name: Setup Theos
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
         with:
           repository: theos/theos
           ref: 8771215f765e774bfefdacc6ddf0e151c2973d49

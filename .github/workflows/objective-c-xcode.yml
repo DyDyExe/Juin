@@ -1,4 +1,4 @@
-name: Build 
+name: Juin 
 on:
   push:
     tags:

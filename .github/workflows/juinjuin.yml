@@ -16,9 +16,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install dependencies
+    - name: Setup Theos
       run: |
-        brew install --cask xcode
         git clone https://github.com/theos/theos.git $HOME/theos
         export THEOS=$HOME/theos
         echo 'export THEOS=$HOME/theos' >> $HOME/.bash_profile
@@ -26,11 +25,10 @@ jobs:
 
     - name: Download and install iOS SDK 14.5
       run: |
-        curl -L -o /tmp/iPhoneOS14.5.sdk.zip "URL_DU_SDK_IOS_14_5"
+        mkdir -p $HOME/theos/sdks
+        curl -L -o /tmp/iPhoneOS14.5.sdk.zip "https://github.com/xybp888/iOS-SDKs/archive/refs/heads/master.zip"
         unzip /tmp/iPhoneOS14.5.sdk.zip -d $HOME/theos/sdks/
-        mv $HOME/theos/sdks/iPhoneOS14.5.sdk $HOME/theos/sdks/iPhoneOS14.5.sdk
-      env:
-        URL_DU_SDK_IOS_14_5: ${{ secrets.URL_DU_SDK_IOS_14_5 }}
+        mv $HOME/theos/sdks/iOS-SDKs-master/iPhoneOS14.5.sdk $HOME/theos/sdks/iPhoneOS14.5.sdk
 
     - name: Build tweak
       run: |

@@ -19,7 +19,6 @@ jobs:
     - name: Setup Theos
       run: |
         git clone https://github.com/theos/theos.git $HOME/theos
-        export THEOS=$HOME/theos
         echo 'export THEOS=$HOME/theos' >> $HOME/.bash_profile
         source $HOME/.bash_profile
 
@@ -31,14 +30,16 @@ jobs:
         mv $HOME/theos/sdks/iOS-SDKs-master/iPhoneOS14.5.sdk $HOME/theos/sdks/iPhoneOS14.5.sdk
 
     - name: Verify Theos Installation
-      run: ls -la $HOME/theos && ls -la $HOME/theos/sdks
+      run: |
+        ls -la $HOME/theos
+        ls -la $HOME/theos/sdks
 
     - name: Build tweak
       run: |
         export THEOS=$HOME/theos
         make clean package
       env:
-        THEOS=$HOME/theos
+        THEOS: ${{ env.HOME }}/theos
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2

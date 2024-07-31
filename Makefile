@@ -1,10 +1,18 @@
-export THEOS = /var/mobile/theos
-export ARCHS = arm64 arm64e
-export TARGET = iphone:clang:16.5:13.0
-export SYSROOT = $(THEOS)/sdks/iPhoneOS16.5.sdk
-
-INSTALL_TARGET_PROCESSES = SpringBoard
-SUBPROJECTS += Tweak Preferences
-
+export THEOS = $(HOME)/theos
 include $(THEOS)/makefiles/common.mk
-include $(THEOS_MAKE_PATH)/aggregate.mk
+
+# Nom du tweak
+TWEAK_NAME = Juin
+
+# Fichiers source du tweak
+MyTweak_FILES = Tweak.xm
+
+# Cible et architectures
+TARGET = iphone:clang:latest:14.5
+ARCHS = arm64 arm64e
+
+include $(THEOS_MAKE_PATH)/tweak.mk
+
+# Commande à exécuter après l'installation (par exemple, redémarrer SpringBoard)
+after-install::
+	install.exec "killall -9 SpringBoard"

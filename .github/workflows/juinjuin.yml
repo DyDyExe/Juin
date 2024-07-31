@@ -28,11 +28,16 @@ jobs:
         curl -L -o /tmp/iPhoneOS14.5.sdk.tar.xz "https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS14.5.sdk.tar.xz"
         tar -xf /tmp/iPhoneOS14.5.sdk.tar.xz -C $HOME/theos/sdks/
 
+    - name: Download missing tools
+      run: |
+        mkdir -p $HOME/theos/utils
+        curl -L -o $HOME/theos/utils/dm.pl https://github.com/theos/theos/raw/master/bin/dm.pl
+        chmod +x $HOME/theos/utils/dm.pl
+
     - name: Verify Theos and SDK Installation
       run: |
         ls -la $HOME/theos
         ls -la $HOME/theos/sdks
-        # Vérifiez la présence de dm.pl
         ls -la $HOME/theos/utils
 
     - name: Build tweak

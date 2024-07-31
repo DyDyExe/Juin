@@ -30,12 +30,15 @@ jobs:
         unzip /tmp/iPhoneOS14.5.sdk.zip -d $HOME/theos/sdks/
         mv $HOME/theos/sdks/iOS-SDKs-master/iPhoneOS14.5.sdk $HOME/theos/sdks/iPhoneOS14.5.sdk
 
+    - name: Verify Theos Installation
+      run: ls -la $HOME/theos && ls -la $HOME/theos/sdks
+
     - name: Build tweak
       run: |
         export THEOS=$HOME/theos
         make clean package
       env:
-        THEOS_PACKAGE_BUILD: 1
+        THEOS=$HOME/theos
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v2

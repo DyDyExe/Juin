@@ -1,0 +1,46 @@
+name: Build Tweak
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        brew install --cask xcode
+        git clone https://github.com/theos/theos.git $HOME/theos
+        export THEOS=$HOME/theos
+        echo 'export THEOS=$HOME/theos' >> $HOME/.bash_profile
+        source $HOME/.bash_profile
+
+    - name: Download and install iOS SDK 14.5
+      run: |
+        curl -L -o /tmp/iPhoneOS14.5.sdk.zip "URL_DU_SDK_IOS_14_5"
+        unzip /tmp/iPhoneOS14.5.sdk.zip -d $HOME/theos/sdks/
+        mv $HOME/theos/sdks/iPhoneOS14.5.sdk $HOME/theos/sdks/iPhoneOS14.5.sdk
+      env:
+        URL_DU_SDK_IOS_14_5: ${{ secrets.URL_DU_SDK_IOS_14_5 }}
+
+    - name: Build tweak
+      run: |
+        export THEOS=$HOME/theos
+        make clean package
+      env:
+        THEOS_PACKAGE_BUILD: 1
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: tweak-build
+        path: ./packages/*.deb

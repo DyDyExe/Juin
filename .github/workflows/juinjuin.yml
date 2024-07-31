@@ -32,6 +32,8 @@ jobs:
       run: |
         ls -la $HOME/theos
         ls -la $HOME/theos/sdks
+        # Vérifiez la présence de dm.pl
+        ls -la $HOME/theos/utils
 
     - name: Build tweak
       run: |

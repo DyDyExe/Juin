@@ -33,6 +33,7 @@ jobs:
         mkdir -p $HOME/theos/utils
         curl -L -o $HOME/theos/utils/dm.pl https://github.com/theos/theos/raw/master/bin/dm.pl
         chmod +x $HOME/theos/utils/dm.pl
+        ls -la $HOME/theos/utils # Vérifier la présence et les permissions de dm.pl
 
     - name: Verify Theos and SDK Installation
       run: |
